@@ -1,5 +1,5 @@
-//Ï³äêëþ÷åííÿ á³áë³îòåê òà îãîëîøåííÿ çì³ííèõ
-#include <Wire.h> // new comment
+
+#include <Wire.h> // new comment111
 #include <RTClib.h>
 #include <LiquidCrystal_I2C.h>  // á³áë³îòåêè
 #include <EEPROM.h> // Ï³äêëþ÷àºìî á³áë³îòåêó EEPROM
