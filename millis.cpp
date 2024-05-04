@@ -1,25 +1,25 @@
-//Підключення бібліотек та оголошення змінних
-#include <Wire.h> // перевірка 222
+//ГЏВіГ¤ГЄГ«ГѕГ·ГҐГ­Г­Гї ГЎВіГЎГ«ВіГ®ГІГҐГЄ ГІГ  Г®ГЈГ®Г«Г®ГёГҐГ­Г­Гї Г§Г¬ВіГ­Г­ГЁГµ
+#include <Wire.h> // new comment
 #include <RTClib.h>
-#include <LiquidCrystal_I2C.h>  // бібліотеки
-#include <EEPROM.h> // Підключаємо бібліотеку EEPROM
+#include <LiquidCrystal_I2C.h>  // ГЎВіГЎГ«ВіГ®ГІГҐГЄГЁ
+#include <EEPROM.h> // ГЏВіГ¤ГЄГ«ГѕГ·Г ВєГ¬Г® ГЎВіГЎГ«ВіГ®ГІГҐГЄГі EEPROM
 
 
 
 RTC_DS3231 rtc;
-LiquidCrystal_I2C lcd(0x27, 16, 2);  //дисплей
+LiquidCrystal_I2C lcd(0x27, 16, 2);  //Г¤ГЁГ±ГЇГ«ГҐГ©
 
-void ringBell(DateTime now);  //функція дзвоника
+void ringBell(DateTime now);  //ГґГіГ­ГЄГ¶ВіГї Г¤Г§ГўГ®Г­ГЁГЄГ 
 
-const int signalPin = 7;  // пін 7 для виводу сигналу
-const int SIGNAL_DURATION = 5000;  // тривалість сигналу в мілісекундах
-const unsigned long eventInterval = 5000;  // інтервал між подіями в мілісекундах (5 секунд)
-unsigned long lastSignalMillis = 0;  //змінна для зберігання останнього сигналу
-int signalCount = 0;  //змінна для лічильника сигналів
-unsigned long lastEventMillis = 0; //змінна для зберігання часу останньої події
+const int signalPin = 7;  // ГЇВіГ­ 7 Г¤Г«Гї ГўГЁГўГ®Г¤Гі Г±ГЁГЈГ­Г Г«Гі
+const int SIGNAL_DURATION = 5000;  // ГІГ°ГЁГўГ Г«ВіГ±ГІГј Г±ГЁГЈГ­Г Г«Гі Гў Г¬ВіГ«ВіГ±ГҐГЄГіГ­Г¤Г Гµ
+const unsigned long eventInterval = 5000;  // ВіГ­ГІГҐГ°ГўГ Г« Г¬ВіГ¦ ГЇГ®Г¤ВіГїГ¬ГЁ Гў Г¬ВіГ«ВіГ±ГҐГЄГіГ­Г¤Г Гµ (5 Г±ГҐГЄГіГ­Г¤)
+unsigned long lastSignalMillis = 0;  //Г§Г¬ВіГ­Г­Г  Г¤Г«Гї Г§ГЎГҐГ°ВіГЈГ Г­Г­Гї Г®Г±ГІГ Г­Г­ГјГ®ГЈГ® Г±ГЁГЈГ­Г Г«Гі
+int signalCount = 0;  //Г§Г¬ВіГ­Г­Г  Г¤Г«Гї Г«ВіГ·ГЁГ«ГјГ­ГЁГЄГ  Г±ГЁГЈГ­Г Г«ВіГў
+unsigned long lastEventMillis = 0; //Г§Г¬ВіГ­Г­Г  Г¤Г«Гї Г§ГЎГҐГ°ВіГЈГ Г­Г­Гї Г·Г Г±Гі Г®Г±ГІГ Г­Г­ГјГ®Вї ГЇГ®Г¤ВіВї
 
-unsigned long lastDisplayUpdate = 0; // змінна для зберігання часу останнього оновлення дисплея
-const unsigned long displayUpdateInterval = 1000; // інтервал оновлення дисплея в мілісекундах
+unsigned long lastDisplayUpdate = 0; // Г§Г¬ВіГ­Г­Г  Г¤Г«Гї Г§ГЎГҐГ°ВіГЈГ Г­Г­Гї Г·Г Г±Гі Г®Г±ГІГ Г­Г­ГјГ®ГЈГ® Г®Г­Г®ГўГ«ГҐГ­Г­Гї Г¤ГЁГ±ГЇГ«ГҐГї
+const unsigned long displayUpdateInterval = 1000; // ВіГ­ГІГҐГ°ГўГ Г« Г®Г­Г®ГўГ«ГҐГ­Г­Гї Г¤ГЁГ±ГЇГ«ГҐГї Гў Г¬ВіГ«ВіГ±ГҐГЄГіГ­Г¤Г Гµ
 
 unsigned long lastMillis = 0;
 
@@ -28,21 +28,21 @@ bool lessonTriggered = false;
 
 String lessons[] = { "lesson_0", "lesson_1", "PAUSE", "lesson_2", "PAUSE",
  "lesson_3", "PAUSE", "lesson_4", "PAUSE", "lesson_5", "PAUSE",
-"lesson_6", "PAUSE", "lesson_7", "PAUSE", "lesson_8", "PAUSE" };  //список з уроками
+"lesson_6", "PAUSE", "lesson_7", "PAUSE", "lesson_8", "PAUSE" };  //Г±ГЇГЁГ±Г®ГЄ Г§ ГіГ°Г®ГЄГ Г¬ГЁ
 
 void updateDisplay(DateTime now) {
-    // Отримати поточний час millis()
+    // ГЋГІГ°ГЁГ¬Г ГІГЁ ГЇГ®ГІГ®Г·Г­ГЁГ© Г·Г Г± millis()
     unsigned long currentMillis = millis();
 
-    // Перевірка на переповнення millis()
+    // ГЏГҐГ°ГҐГўВіГ°ГЄГ  Г­Г  ГЇГҐГ°ГҐГЇГ®ГўГ­ГҐГ­Г­Гї millis()
     if (currentMillis < lastMillis) {
-        // Якщо переповнення, оновити значення lastMillis
+        // ГџГЄГ№Г® ГЇГҐГ°ГҐГЇГ®ГўГ­ГҐГ­Г­Гї, Г®Г­Г®ГўГЁГІГЁ Г§Г­Г Г·ГҐГ­Г­Гї lastMillis
         lastMillis = currentMillis;
     }
 
-    // Перевірка, чи пройшло досить часу для оновлення дисплею
+    // ГЏГҐГ°ГҐГўВіГ°ГЄГ , Г·ГЁ ГЇГ°Г®Г©ГёГ«Г® Г¤Г®Г±ГЁГІГј Г·Г Г±Гі Г¤Г«Гї Г®Г­Г®ГўГ«ГҐГ­Г­Гї Г¤ГЁГ±ГЇГ«ГҐГѕ
     if (currentMillis - lastDisplayUpdate >= displayUpdateInterval) {
-        // Відображення інформації на дисплеї
+        // Г‚ВіГ¤Г®ГЎГ°Г Г¦ГҐГ­Г­Гї ВіГ­ГґГ®Г°Г¬Г Г¶ВіВї Г­Г  Г¤ГЁГ±ГЇГ«ГҐВї
         lcd.clear();
         lcd.setCursor(4, 1);
         if ((now.hour() >= 7 && now.hour() <= 16) && (now.dayOfTheWeek() >= 1 && now.dayOfTheWeek() <= 5)) {
@@ -62,13 +62,13 @@ void updateDisplay(DateTime now) {
         lcd.print(':');
         lcd.print(now.second(), DEC);
 
-        // Оновити значення lastDisplayUpdate
+        // ГЋГ­Г®ГўГЁГІГЁ Г§Г­Г Г·ГҐГ­Г­Гї lastDisplayUpdate
         lastDisplayUpdate = currentMillis;
     }
 }
 
 
-//Налаштування
+//ГЌГ Г«Г ГёГІГіГўГ Г­Г­Гї
 void setup() {
     Serial.begin(9600);
     pinMode(signalPin, OUTPUT);
@@ -87,7 +87,7 @@ void setup() {
 
 }
 
-//Основний цикл програми
+//ГЋГ±Г­Г®ГўГ­ГЁГ© Г¶ГЁГЄГ« ГЇГ°Г®ГЈГ°Г Г¬ГЁ
 void loop() {
     DateTime now = rtc.now();
     updateDisplay(now);
@@ -129,15 +129,15 @@ void ringBell(DateTime now) {
 
             if (!lessonTriggered) {
                 digitalWrite(signalPin, HIGH);
-                lessonTriggered = true;  // Помітка, що подія вже викликана
+                lessonTriggered = true;  // ГЏГ®Г¬ВіГІГЄГ , Г№Г® ГЇГ®Г¤ВіГї ГўГ¦ГҐ ГўГЁГЄГ«ГЁГЄГ Г­Г 
                 signalCount++;
             }
         }
         else {
             lessonTriggered = false;
-            // Перевірка часу для вимкнення сигналу
+            // ГЏГҐГ°ГҐГўВіГ°ГЄГ  Г·Г Г±Гі Г¤Г«Гї ГўГЁГ¬ГЄГ­ГҐГ­Г­Гї Г±ГЁГЈГ­Г Г«Гі
             if (millis() - lastSignalMillis >= SIGNAL_DURATION) {
-                digitalWrite(signalPin, LOW);  // Зниження піна, якщо не в час високого сигналу
+                digitalWrite(signalPin, LOW);  // Г‡Г­ГЁГ¦ГҐГ­Г­Гї ГЇВіГ­Г , ГїГЄГ№Г® Г­ГҐ Гў Г·Г Г± ГўГЁГ±Г®ГЄГ®ГЈГ® Г±ГЁГЈГ­Г Г«Гі
             }
         }
     }
